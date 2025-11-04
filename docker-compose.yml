@@ -20,7 +20,7 @@ services:
     container_name: frontend
     build: .
     ports:
-      - "80:80"
+      - "90:80"
     restart: always
 volumes:
   mongo_data:
