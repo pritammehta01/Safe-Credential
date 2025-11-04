@@ -22,6 +22,8 @@ services:
     ports:
       - "90:80"
     restart: always
+    depends_on:
+      - backend
 volumes:
   mongo_data:
 
