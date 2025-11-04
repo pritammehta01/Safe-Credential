@@ -7,7 +7,7 @@ const Manager = () => {
     const [form, setform] = useState({ site: "", username: "", password: "" })
     const [passwordArray, setpasswordArray] = useState([])
     const getpasswords = async () => {
-        let req = await fetch('http://136.114.92.212:3000/')
+        let req = await fetch('http://backend:3000/')
         let passwords = await req.json()
         setpasswordArray(passwords)
     }
@@ -47,7 +47,7 @@ const Manager = () => {
             setpasswordArray([...passwordArray, newPassword]);
 
             // Save to backend
-            await fetch("http://136.114.92.212:3000/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newPassword) });
+            await fetch("http://backend:3000/", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newPassword) });
 
             // Reset form
             setform({ site: "", username: "", password: "" });
