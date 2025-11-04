@@ -7,7 +7,7 @@ const Manager = () => {
     const [form, setform] = useState({ site: "", username: "", password: "" })
     const [passwordArray, setpasswordArray] = useState([])
     const getpasswords = async () => {
-        let req = await fetch('http://http://136.114.92.212:3000')
+        let req = await fetch('http://136.114.92.212:3000')
         let passwords = await req.json()
         setpasswordArray(passwords)
     }
@@ -38,7 +38,7 @@ const Manager = () => {
 
             // Delete only if editing an existing password
             if (form.id) {
-                await fetch("http://http://136.114.92.212:3000", { method: "DELETE", headers: { "Content-Type": "application/json" },  body: JSON.stringify({ id: form.id }) });
+                await fetch("http://136.114.92.212:3000", { method: "DELETE", headers: { "Content-Type": "application/json" },  body: JSON.stringify({ id: form.id }) });
             }
 
             const newPassword = { ...form, id: newId };
@@ -47,7 +47,7 @@ const Manager = () => {
             setpasswordArray([...passwordArray, newPassword]);
 
             // Save to backend
-            await fetch("http://http://136.114.92.212:3000", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newPassword) });
+            await fetch("http://136.114.92.212:3000", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newPassword) });
 
             // Reset form
             setform({ site: "", username: "", password: "" });
@@ -62,7 +62,7 @@ const Manager = () => {
         let c = confirm("Do You Want to Delete")
         if (c) {
             setpasswordArray(passwordArray.filter(item => item.id !== id))
-            await fetch('http://http://136.114.92.212:3000', { method: "DELETE", headers: { "content-Type": "application/json" }, body: JSON.stringify({ id }) })
+            await fetch('http://136.114.92.212:3000', { method: "DELETE", headers: { "content-Type": "application/json" }, body: JSON.stringify({ id }) })
              toast("Password Deleted!");
 
             // localStorage.setItem("passwords", JSON.stringify(passwordArray.filter(item=>item.id !==id)))
