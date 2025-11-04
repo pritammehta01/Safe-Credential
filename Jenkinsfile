@@ -36,6 +36,11 @@ pipeline{
         }
         // stage("Deploy Using Docker-Compose"){
         //     steps{
+        //         sh "docker-compose down --rmi all --volumes"
+        //     }
+        // }
+        // stage("Deploy Using Docker-Compose"){
+        //     steps{
         //         sh "docker-compose down"
         //     }
         // }
