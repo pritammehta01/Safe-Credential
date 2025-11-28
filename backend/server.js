@@ -3,7 +3,9 @@ const dotenv=require('dotenv').config()
 const bodyparser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const cors = require('cors')
-const url = 'mongodb://mongodb:27017';
+
+//const url = 'mongodb://root:password123@mongo-service:27017';  //this is for kubernetes
+const url = 'mongodb://mongodb:27017'; //this for docker-compose
 const client = new MongoClient(url);
 
 console.log(process.env.Mongo_URI) 
