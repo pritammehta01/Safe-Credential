@@ -1,20 +1,22 @@
-#stage 1
-FROM node:22 AS express
+# Stage 1: Build
+FROM node:22-alpine AS builder
 WORKDIR /app
+COPY package*.json ./
+RUN npm install
 COPY . .
-RUN npm i
 
-# Stage 2
-FROM node:22-slim
-
-# Setup the working directory
+# Stage 2: Runtime
+FROM node:22-alpine
 WORKDIR /app
 
-# Copy the above stage as compressed
-COPY --from=express /app . 
+# Copy from builder
+COPY --from=builder /app .
 
-# Port
-EXPOSE 3000
+# FIX: Match your updated server.js port
+EXPOSE 5000
 
-# App
+# Use non-root user for K8s security
+USER node
+
+ENV NODE_ENV=production
 CMD ["node", "server.js"]
