@@ -1,0 +1,103 @@
+# --- MONGODB ---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb
+spec:
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+  - port: 27017
+    targetPort: 27017
+
+# --- BACKEND ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safe-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: safe-backend
+  template:
+    metadata:
+      labels:
+        app: safe-backend
+    spec:
+      containers:
+      - name: backend
+        image: pritammehta/safe-backend:latest
+        env:
+        - name: MONGO_URI
+          value: "mongodb://mongo-service:27017"
+        ports:
+        - containerPort: 5000
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safe-backend-service
+spec:
+  selector:
+    app: safe-backend
+  ports:
+  - port: 5000
+    targetPort: 5000
+
+# --- FRONTEND ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safe-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: safe-frontend
+  template:
+    metadata:
+      labels:
+        app: safe-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: pritammehta/safe-frontend:latest
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safe-frontend-service
+spec:
+  selector:
+    app: safe-frontend
+  ports:
+  - port: 80
+    targetPort: 80
