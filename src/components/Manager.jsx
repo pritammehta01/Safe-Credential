@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useRef, useState } from 'react'
 import { ToastContainer, toast } from 'react-toastify';
 import { v4 as uuidv4 } from 'uuid';
-const backendUrl = import.meta.env.VITE_BACKEND_API;
+const backendUrl = import.meta.env.VITE_BACKEND_API || "/api";
 
 
 const Manager = () => {
