@@ -3,7 +3,7 @@ pipeline {
     environment {
         // Project configuration
         DOCKER_USER = 'pritammehta'
-        PROJECT_ID  = 'pritam-475305'
+        PROJECT_ID  = 'pritam-483911'
         CLUSTER     = 'safe-credential-standard'
         ZONE        = 'us-central1-a'
         
