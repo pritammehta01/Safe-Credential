@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: pritammehta/safe-backend:latest
+          image: pritammehta/safe-backend:${IMAGE_TAG}
           imagePullPolicy: Always
           env:
             - name: MONGO_URI
@@ -118,7 +118,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: pritammehta/safe-frontend:latest
+          image: pritammehta/safe-frontend:${IMAGE_TAG}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
