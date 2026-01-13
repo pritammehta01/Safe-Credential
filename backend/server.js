@@ -23,6 +23,11 @@ client.connect()
     process.exit(1);
   });
 
+// Root endpoint for GKE LB health check
+app.get("/", (req, res) => {
+  res.status(200).send("OK");
+});
+
 // Health check (for GKE probes)
 app.get('/health', (req, res) => {
   res.status(200).send('Backend is Healthy');
