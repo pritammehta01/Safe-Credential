@@ -1,4 +1,4 @@
-# --- MONGODB ---
+# --- MONGODB --- (No changes needed here)
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -48,21 +48,19 @@ spec:
       containers:
       - name: backend
         image: pritammehta/safe-backend:latest
-        imagePullPolicy: Always # <--- ADD THIS LINE
+        imagePullPolicy: Always
         env:
         - name: MONGO_URI
           value: "mongodb://mongo-service:27017"
         ports:
         - containerPort: 5000
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 5000
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: safe-backend-service
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}' # <--- CRITICAL FOR GATEWAY
 spec:
   selector:
     app: safe-backend
@@ -89,7 +87,7 @@ spec:
       containers:
       - name: frontend
         image: pritammehta/safe-frontend:latest
-        imagePullPolicy: Always # <--- ADD THIS LINE
+        imagePullPolicy: Always
         ports:
         - containerPort: 80
 ---
@@ -97,6 +95,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: safe-frontend-service
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}' # <--- CRITICAL FOR GATEWAY
 spec:
   selector:
     app: safe-frontend
