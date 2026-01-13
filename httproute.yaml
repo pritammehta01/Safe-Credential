@@ -6,7 +6,6 @@ metadata:
 spec:
   parentRefs:
   - name: safe-gateway
-    namespace: default
 
   rules:
   # Backend API
@@ -14,17 +13,11 @@ spec:
     - path:
         type: PathPrefix
         value: /api
-    filters:
-    - type: URLRewrite
-      urlRewrite:
-        path:
-          type: ReplacePrefixMatch
-          replacePrefixMatch: /
     backendRefs:
     - name: safe-backend-service
       port: 5000
 
-  # Frontend
+  # Frontend (catch-all)
   - matches:
     - path:
         type: PathPrefix
