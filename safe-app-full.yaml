@@ -136,36 +136,23 @@ spec:
     - protocol: TCP
       port: 80
       targetPort: 80
-# ---
-# ==========================================
-# 4. GKE Gateway & Routes (The "Fix")
-# ==========================================
-# apiVersion: gateway.networking.k8s.io/v1
-# kind: Gateway
-# metadata:
-#   name: external-http
-# spec:
-#   gatewayClassName: gke-l7-global-external-managed
-#   listeners:
-#   - name: http
-#     protocol: HTTP
-#     port: 80
-# ---
-# apiVersion: gateway.networking.k8s.io/v1
-# kind: HTTPRoute
-# metadata:
-#   name: safe-route
-# spec:
-#   parentRefs:
-#   - name: external-http
-#   rules:
-#   - matches:
-#     - path:
-#         type: PathPrefix
-#         value: /api
-#     backendRefs:
-#     - name: safe-backend-service
-#       port: 5000
-#   - backendRefs:
-#     - name: safe-frontend-service
-#       port: 80
+---
+apiVersion: networking.gke.io/v1
+kind: BackendHealthPolicy
+metadata:
+  name: safe-backend-health
+spec:
+  targetRef:
+    group: ""
+    kind: Service
+    name: safe-backend-service
+  default:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    config:
+      type: HTTP
+      httpHealthCheck:
+        port: 5000
+        requestPath: /health
