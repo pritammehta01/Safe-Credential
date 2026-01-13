@@ -75,7 +75,7 @@ kind: Deployment
 metadata:
   name: safe-frontend
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: safe-frontend
