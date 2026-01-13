@@ -60,6 +60,8 @@ pipeline {
                         gcloud config set project ${PROJECT_ID}
                         gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
 
+                        kubectl delete -f safe-app-full.yaml
+                        
                         kubectl apply -f safe-app-full.yaml
                         kubectl apply -f gateway.yaml
                         kubectl apply -f httproute.yaml
