@@ -6,18 +6,28 @@ metadata:
 spec:
   parentRefs:
   - name: safe-gateway
-
   rules:
-  # Backend API
+  # ---------------------------------------------------------
+  # Rule 1: Backend API (Matches /api)
+  # ---------------------------------------------------------
   - matches:
     - path:
         type: PathPrefix
         value: /api
+    filters:
+    - type: URLRewrite
+      urlRewrite:
+        path:
+          type: ReplacePrefixMatch
+          # This ensures that /api stays as /api when it hits Express
+          replacePrefixMatch: /api 
     backendRefs:
     - name: safe-backend-service
       port: 5000
 
-  # Frontend (catch-all)
+  # ---------------------------------------------------------
+  # Rule 2: Frontend (Catch-all for /)
+  # ---------------------------------------------------------
   - matches:
     - path:
         type: PathPrefix
