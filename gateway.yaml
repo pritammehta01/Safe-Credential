@@ -3,7 +3,8 @@ kind: Gateway
 metadata:
   name: safe-gateway
 spec:
-  gatewayClassName: nginx # This tells K8s to use the Nginx Fabric you just installed
+  # Use the built-in Google class (Global External Load Balancer)
+  gatewayClassName: gke-l7-global-external-managed 
   listeners:
   - name: http
     protocol: HTTP
