@@ -1,47 +1,78 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
-const bodyparser = require('body-parser');
+const bodyParser = require('body-parser');
 const cors = require('cors');
 
-// 1. Use Environment Variable for MongoDB URL
-const url = process.env.MONGO_URI || 'mongodb://localhost:27017'; 
-const client = new MongoClient(url);
+// Environment variables
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017';
+const PORT = 5000;
+const DB_NAME = 'safeCredential';
 
-const dbName = 'safeCredential';
 const app = express();
-const port = 5000; // Standardized to 5000 for your K8s service
+const client = new MongoClient(MONGO_URI);
 
+// Middleware
 app.use(cors());
-app.use(bodyparser.json());
+app.use(bodyParser.json());
 
-// Basic connection check
-client.connect().then(() => console.log("Connected to MongoDB at", url));
+// Connect to MongoDB once
+client.connect()
+  .then(() => console.log('Connected to MongoDB at', MONGO_URI))
+  .catch(err => {
+    console.error('MongoDB connection failed', err);
+    process.exit(1);
+  });
 
-// Health Check for Kubernetes Probes
-app.get('/health', (req, res) => res.status(200).send("Backend is Healthy"));
-
-// API Routes
-app.get('/', async (req, res) => {
-    const db = client.db(dbName);
-    const collection = db.collection('passwords');
-    const findResult = await collection.find({}).toArray();
-    res.json(findResult);
+// Health check (for GKE probes)
+app.get('/health', (req, res) => {
+  res.status(200).send('Backend is Healthy');
 });
 
-app.post('/', async (req, res) => {
-    const db = client.db(dbName);
+// ---------------- API ROUTES ----------------
+
+// GET all passwords
+app.get('/api', async (req, res) => {
+  try {
+    const db = client.db(DB_NAME);
     const collection = db.collection('passwords');
-    const findResult = await collection.insertOne(req.body);
-    res.send({ success: true, result: findResult });
+    const passwords = await collection.find({}).toArray();
+    res.json(passwords);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch passwords' });
+  }
 });
 
-app.delete('/', async (req, res) => {
-    const db = client.db(dbName);
+// CREATE password
+app.post('/api', async (req, res) => {
+  try {
+    const db = client.db(DB_NAME);
     const collection = db.collection('passwords');
-    const findResult = await collection.deleteOne(req.body);
-    res.send({ success: true, result: findResult });
+    const result = await collection.insertOne(req.body);
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save password' });
+  }
 });
 
-app.listen(port, '0.0.0.0', () => {
-    console.log(`Backend listening on port ${port}`);
+// DELETE password
+app.delete('/api', async (req, res) => {
+  try {
+    const { id } = req.body;
+    const db = client.db(DB_NAME);
+    const collection = db.collection('passwords');
+    const result = await collection.deleteOne({ id });
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete password' });
+  }
+});
+
+// ------------------------------------------------
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Backend running on port ${PORT}`);
 });
