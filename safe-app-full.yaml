@@ -50,7 +50,8 @@ spec:
   selector:
     app: mongodb
   ports:
-    - port: 27017
+    - protocol: TCP
+      port: 27017
       targetPort: 27017
 ---
 # ==========================================
@@ -72,7 +73,7 @@ spec:
     spec:
       containers:
         - name: backend
-          # Jenkins pipeline will update this image tag automatically
+          # Jenkins will update this tag during 'kubectl set image'
           image: pritammehta/safe-backend:latest 
           imagePullPolicy: Always
           env:
@@ -99,3 +100,51 @@ apiVersion: v1
 kind: Service
 metadata:
   name: safe-backend-service
+  annotations:
+    # Required for GKE Container-Native Load Balancing
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  selector:
+    app: safe-backend
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
+---
+# ==========================================
+# 4. Frontend Deployment (React/Nginx)
+# ==========================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: safe-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: safe-frontend
+  template:
+    metadata:
+      labels:
+        app: safe-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: pritammehta/safe-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: safe-frontend-service
+  annotations:
+    cloud.google.com/neg: '{"ingress": true}'
+spec:
+  selector:
+    app: safe-frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
