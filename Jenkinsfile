@@ -34,11 +34,9 @@ pipeline {
 
                         echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
-                        echo "🔨 Building backend:${IMAGE_TAG}"
                         docker build -t $DOCKER_USER/safe-backend:${IMAGE_TAG} ./backend
                         docker push $DOCKER_USER/safe-backend:${IMAGE_TAG}
 
-                        echo "🔨 Building frontend:${IMAGE_TAG}"
                         docker build -t $DOCKER_USER/safe-frontend:${IMAGE_TAG} .
                         docker push $DOCKER_USER/safe-frontend:${IMAGE_TAG}
                     '''
@@ -52,26 +50,16 @@ pipeline {
                     file(credentialsId: "${GKE_CRED_ID}", variable: 'KEY_FILE')
                 ]) {
                     sh '''
-    set -e
-    IMAGE_TAG=${BUILD_NUMBER}
+                        set -e
+                        export IMAGE_TAG=${BUILD_NUMBER}
 
-    # 1. Update your cluster credentials (Auth)
-    gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
+                        gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
 
-    # 2. Apply the YAML (WITHOUT DELETING FIRST)
-    # This ensures your Service IPs and MongoDB remain stable.
-    kubectl apply -f safe-app-full.yaml
+                        envsubst < safe-app-full.yaml | kubectl apply -f -
 
-    # 3. Update only the application images
-    kubectl set image deployment/safe-backend \
-      backend=pritammehta/safe-backend:${IMAGE_TAG}
-    
-    kubectl set image deployment/safe-frontend \
-      frontend=pritammehta/safe-frontend:${IMAGE_TAG}
-
-    # 4. Give GKE more time to verify health (300 seconds)
-    kubectl rollout status deployment/safe-backend --timeout=300s
-'''
+                        kubectl rollout status deployment/safe-backend --timeout=600s
+                        kubectl rollout status deployment/safe-frontend --timeout=600s
+                    '''
                 }
             }
         }
@@ -82,7 +70,7 @@ pipeline {
             sh 'docker image prune -f || true'
         }
         failure {
-            echo "❌ Deployment failed. Use kubectl rollout undo if needed."
+            echo "❌ Deployment failed. Run kubectl describe pod for details."
         }
     }
 }
