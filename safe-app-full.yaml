@@ -1,7 +1,6 @@
-# =======================
-# MongoDB (Persistent)
-# =======================
-
+# ==========================================
+# 1. MongoDB Persistence (PVC)
+# ==========================================
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -13,6 +12,9 @@ spec:
     requests:
       storage: 5Gi
 ---
+# ==========================================
+# 2. MongoDB Deployment & Service
+# ==========================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -50,12 +52,10 @@ spec:
   ports:
     - port: 27017
       targetPort: 27017
-
-# =======================
-# Backend
-# =======================
-
 ---
+# ==========================================
+# 3. Backend Deployment (Node.js/Express)
+# ==========================================
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -72,68 +72,30 @@ spec:
     spec:
       containers:
         - name: backend
-          image: pritammehta/safe-backend
-          imagePullPolicy: IfNotPresent
+          # Jenkins pipeline will update this image tag automatically
+          image: pritammehta/safe-backend:latest 
+          imagePullPolicy: Always
           env:
             - name: MONGO_URI
               value: "mongodb://mongo-service:27017"
           ports:
             - containerPort: 5000
+          # Critical for GKE Gateway Health Checks
           readinessProbe:
             httpGet:
               path: /health
               port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 15
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: safe-backend-service
-  annotations:
-    cloud.google.com/neg: '{"ingress": true}'
-spec:
-  selector:
-    app: safe-backend
-  ports:
-    - port: 5000
-      targetPort: 5000
-
-# =======================
-# Frontend
-# =======================
-
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: safe-frontend
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: safe-frontend
-  template:
-    metadata:
-      labels:
-        app: safe-frontend
-    spec:
-      containers:
-        - name: frontend
-          image: pritammehta/safe-frontend
-          imagePullPolicy: IfNotPresent
-          ports:
-            - containerPort: 80
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: safe-frontend-service
-  annotations:
-    cloud.google.com/neg: '{"ingress": true}'
-spec:
-  selector:
-    app: safe-frontend
-  ports:
-    - port: 80
-      targetPort: 80
