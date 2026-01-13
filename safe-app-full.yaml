@@ -48,6 +48,7 @@ spec:
       containers:
       - name: backend
         image: pritammehta/safe-backend:latest
+        imagePullPolicy: Always # <--- ADD THIS LINE
         env:
         - name: MONGO_URI
           value: "mongodb://mongo-service:27017"
@@ -88,6 +89,7 @@ spec:
       containers:
       - name: frontend
         image: pritammehta/safe-frontend:latest
+        imagePullPolicy: Always # <--- ADD THIS LINE
         ports:
         - containerPort: 80
 ---
