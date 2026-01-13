@@ -138,21 +138,17 @@ spec:
       targetPort: 80
 ---
 apiVersion: networking.gke.io/v1
-kind: BackendHealthPolicy
+kind: HealthCheckPolicy
 metadata:
-  name: safe-backend-health
+  name: safe-backend-hc
 spec:
   targetRef:
     group: ""
     kind: Service
     name: safe-backend-service
   default:
-    checkIntervalSec: 10
-    timeoutSec: 5
-    healthyThreshold: 1
-    unhealthyThreshold: 3
-    config:
-      type: HTTP
-      httpHealthCheck:
-        port: 5000
-        requestPath: /health
+    type: HTTP
+    httpHealthCheck:
+      port: 5000
+      requestPath: /health
+
