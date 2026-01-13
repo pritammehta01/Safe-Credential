@@ -52,29 +52,26 @@ pipeline {
                     file(credentialsId: "${GKE_CRED_ID}", variable: 'KEY_FILE')
                 ]) {
                     sh '''
-                        set -e
-                        IMAGE_TAG=${BUILD_NUMBER}
+    set -e
+    IMAGE_TAG=${BUILD_NUMBER}
 
-                        export USE_GKE_GCLOUD_AUTH_PLUGIN=True
-                        gcloud auth activate-service-account --key-file=$KEY_FILE
-                        gcloud config set project ${PROJECT_ID}
-                        gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
+    # 1. Update your cluster credentials (Auth)
+    gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
 
-                        kubectl delete -f safe-app-full.yaml
-                        
-                        kubectl apply -f safe-app-full.yaml
-                        kubectl apply -f gateway.yaml
-                        kubectl apply -f httproute.yaml
+    # 2. Apply the YAML (WITHOUT DELETING FIRST)
+    # This ensures your Service IPs and MongoDB remain stable.
+    kubectl apply -f safe-app-full.yaml
 
-                        kubectl set image deployment/safe-backend \
-                          backend=pritammehta/safe-backend:${IMAGE_TAG}
+    # 3. Update only the application images
+    kubectl set image deployment/safe-backend \
+      backend=pritammehta/safe-backend:${IMAGE_TAG}
+    
+    kubectl set image deployment/safe-frontend \
+      frontend=pritammehta/safe-frontend:${IMAGE_TAG}
 
-                        kubectl set image deployment/safe-frontend \
-                          frontend=pritammehta/safe-frontend:${IMAGE_TAG}
-
-                        kubectl rollout status deployment/safe-backend --timeout=120s
-                        kubectl rollout status deployment/safe-frontend --timeout=120s
-                    '''
+    # 4. Give GKE more time to verify health (300 seconds)
+    kubectl rollout status deployment/safe-backend --timeout=300s
+'''
                 }
             }
         }
