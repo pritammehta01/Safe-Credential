@@ -3,7 +3,7 @@ kind: Gateway
 metadata:
   name: safe-gateway
 spec:
-  gatewayClassName: gke-l7-gke-gateway
+  gatewayClassName: nginx # This tells K8s to use the Nginx Fabric you just installed
   listeners:
   - name: http
     protocol: HTTP
