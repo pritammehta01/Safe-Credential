@@ -15,8 +15,7 @@ spec:
       urlRewrite:
         path:
           type: ReplacePrefixMatch
-          # Correct field name is replacePrefixMatch, NOT replacePrefix
-          replacePrefixMatch: / 
+          replacePrefixMatch: /  # This fixes the 'unknown field' error
     backendRefs:
     - name: safe-backend-service
       port: 5000
