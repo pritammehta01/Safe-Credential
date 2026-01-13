@@ -147,8 +147,11 @@ spec:
     kind: Service
     name: safe-backend-service
   default:
-    type: HTTP
-    httpHealthCheck:
+    checkIntervalSec: 10
+    timeoutSec: 5
+    healthyThreshold: 1
+    unhealthyThreshold: 3
+    http:
       port: 5000
       requestPath: /health
 
