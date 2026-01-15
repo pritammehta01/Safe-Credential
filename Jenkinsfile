@@ -58,8 +58,8 @@ pipeline {
                         envsubst < safe-app-full.yaml | kubectl apply -f -
 
                         # Gateway & HTTPRoute are infra (applied separately)
-                         kubectl apply -f gateway.yaml
-                         kubectl apply -f httproute.yaml
+                        # kubectl apply -f gateway.yaml
+                        # kubectl apply -f httproute.yaml
 
                         kubectl rollout status deployment/safe-backend --timeout=600s
                         kubectl rollout status deployment/safe-frontend --timeout=600s
