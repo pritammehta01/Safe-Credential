@@ -68,7 +68,7 @@ pipeline {
                 }
             }
         }
-
+      /*
         stage('Install Prometheus & Grafana') {
             steps {
                 withCredentials([
@@ -97,6 +97,7 @@ pipeline {
                 }
             }
         }
+        */
     }
 
     post {
