@@ -53,16 +53,46 @@ pipeline {
                         set -e
                         export IMAGE_TAG=${BUILD_NUMBER}
 
+                        gcloud auth activate-service-account --key-file=$KEY_FILE
                         gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
 
                         envsubst < safe-app-full.yaml | kubectl apply -f -
 
-                        # Gateway & HTTPRoute are infra (applied separately)
-                         kubectl apply -f gateway.yaml
-                         kubectl apply -f httproute.yaml
+                       # Gateway & HTTPRoute are infra (applied separately)
+                       # kubectl apply -f gateway.yaml
+                       # kubectl apply -f httproute.yaml
 
                         kubectl rollout status deployment/safe-backend --timeout=600s
                         kubectl rollout status deployment/safe-frontend --timeout=600s
+                    '''
+                }
+            }
+        }
+
+        stage('Install Prometheus & Grafana') {
+            steps {
+                withCredentials([
+                    file(credentialsId: "${GKE_CRED_ID}", variable: 'KEY_FILE')
+                ]) {
+                    sh '''
+                        set -e
+
+                        gcloud auth activate-service-account --key-file=$KEY_FILE
+                        gcloud container clusters get-credentials ${CLUSTER} --zone ${ZONE}
+
+                        # Install Helm if missing
+                        if ! command -v helm >/dev/null; then
+                          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+                        fi
+
+                        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+                        helm repo update
+
+                        kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
+
+                        helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+                          --namespace monitoring \
+                          --wait
                     '''
                 }
             }
