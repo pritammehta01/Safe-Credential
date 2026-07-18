@@ -85,13 +85,13 @@ kind: Service
 metadata:
   name: safe-backend-service
 spec:
-  type: NodePort
+#  type: NodePort
   selector:
     app: safe-backend
   ports:
   - port: 5000
     targetPort: 5000
-    nodePort: 30500
+ #   nodePort: 30500
     
 ---
 # ==========================================
@@ -123,10 +123,10 @@ kind: Service
 metadata:
   name: safe-frontend-service
 spec:
-  type: NodePort
+ # type: NodePort
   selector:
     app: safe-frontend
   ports:
   - port: 80
     targetPort: 80
-    nodePort: 30080
+  #  nodePort: 30080
