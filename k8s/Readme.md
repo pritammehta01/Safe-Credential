@@ -55,6 +55,9 @@ The application routes traffic as follows:
 # Project Structure
 
 ```
+git clone -b dev https://github.com/pritammehta01/Safe-Credential.git
+
+cd Safe-Credential/k8s
 .
 ├── safe-app-ingress.yaml
 ├── ingress.yaml
