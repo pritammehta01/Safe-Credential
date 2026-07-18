@@ -1,10 +1,30 @@
 # Safe Credential – Kubernetes Ingress Deployment
 
-This project demonstrates how to deploy the **Safe Credential** application on Kubernetes using **Deployments**, **StatefulSets**, **Services**, and **Ingress (Traefik)**.
+## 📖 KodeKloud Lab
 
-The deployment was completed as part of the KodeKloud lab:
+Before following this project, complete or open the KodeKloud lab:
 
-**Lab:** [Use a Service to Access an Application in a Cluster](https://kubernetes.io/docs/tasks/access-application-cluster/service-access-application-cluster/?utm_source=chatgpt.com)
+**🔗 Lab Link:** https://kodekloud.com/studio/labs/kubernetes/services-stable
+
+This project is the solution implementation for the **Services & Ingress** Kubernetes lab using **Traefik Ingress Controller**.
+
+---
+
+## Project Overview
+
+This project demonstrates how to deploy the **Safe Credential** application on Kubernetes using:
+
+* **StatefulSet** for MongoDB
+* **Deployment** for Backend (Express.js)
+* **Deployment** for Frontend (React/Vite)
+* **ClusterIP Services** for internal communication
+* **Traefik Ingress** for external HTTP routing
+
+The application routes traffic as follows:
+
+* `/` → Frontend Service
+* `/api` → Backend Service
+
 
 ---
 
@@ -31,22 +51,6 @@ The deployment was completed as part of the KodeKloud lab:
                                      ▼
                               MongoDB StatefulSet
 ```
-
----
-
-# Kubernetes Resources
-
-| Resource          | Purpose                   |
-| ----------------- | ------------------------- |
-| StatefulSet       | Deploy MongoDB            |
-| Deployment        | Deploy Backend            |
-| Deployment        | Deploy Frontend           |
-| ClusterIP Service | Internal Backend Access   |
-| ClusterIP Service | Internal Frontend Access  |
-| ClusterIP Service | MongoDB Service Discovery |
-| Ingress (Traefik) | Route HTTP traffic        |
-
----
 
 # Project Structure
 
@@ -99,39 +103,6 @@ Describe ingress
 
 ```bash
 kubectl describe ingress safe-ingress
-```
-
----
-
-# Ingress Configuration
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: safe-ingress
-spec:
-  ingressClassName: traefik
-
-  rules:
-  - http:
-      paths:
-
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: safe-frontend-service
-            port:
-              number: 80
-
-      - path: /api
-        pathType: Prefix
-        backend:
-          service:
-            name: safe-backend-service
-            port:
-              number: 5000
 ```
 
 ---
@@ -214,8 +185,8 @@ kubectl describe ingress safe-ingress
 
 Test frontend
 
-```bash
-curl http://<INGRESS-IP>
+```UI
+port:- 80
 ```
 
 Test backend
